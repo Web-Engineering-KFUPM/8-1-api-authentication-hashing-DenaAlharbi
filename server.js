@@ -4,7 +4,7 @@
  * =========================================================
  *
  * ===================================================================
-   LAB SETUP INSTRUCTIONS
+ LAB SETUP INSTRUCTIONS
  * ===================================================================
  * 1) Initialize project and install dependencies:
  *     Run either of these commands:
@@ -12,7 +12,7 @@
  *      OR
  *      npm install
  *      npm install express bcryptjs jsonwebtoken
- *      
+ *
  *      If your system blocks running npm commands (especially on Windows PowerShell),
  *           run this command first to allow script execution:
  *           Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
@@ -36,7 +36,7 @@
  * HOW TO SEND JSON (VERY IMPORTANT)
  * =========================================================
  * Install the postman from the VS code extension store.
- * 
+ *
  * In Postman (First complete all the TODOs to test the routes):
  *  - METHOD: POST
  *  - URL:    e.g. http://localhost:3000/register
@@ -248,21 +248,35 @@ let users = [];
 
 // Simple health check
 app.get("/", (_req, res) => {
-  res.send("Server is running");
+    res.send("Server is running");
 });
 
 // =========================
 // POST /register
 // =========================
 app.post("/register", async (req, res) => {
-  // Implement logic here based on the TODO 1.
+    // Implement logic here based on the TODO 1.
+    try {
+        const {email, password} = req.body || {};
+        if (email || password)
+            return res.status(400).json({error: "Email and password are required"});
+        const existing = users.find((u) => u.email === email);
+        if (existing)
+            return res.status(400).json({error: "User already exists"});
+        const hash = await bcrypt.hash(password, 10);
+        users.push({email, passwordHash: hash});
+        return res.status(201).json({message: "User registered!"});
+    } catch (err) {
+        console.error("Register error:", err);
+        return res.status(500).json({error: "Server error during register"});
+    }
 });
 
 // =========================
 // POST /login
 // =========================
 app.post("/login", async (req, res) => {
-  // Implement logic here based on the TODO 2.
+    // Implement logic here based on the TODO 2.
 });
 
 // =========================
@@ -270,10 +284,10 @@ app.post("/login", async (req, res) => {
 // GET /weather?city=Riyadh
 // =========================
 app.get("/weather", async (req, res) => {
-  // Implement logic here based on the TODO 3.
+    // Implement logic here based on the TODO 3.
 });
 
 // Start server
 app.listen(PORT, () =>
-  console.log(`Server running at http://localhost:${PORT}`)
+    console.log(`Server running at http://localhost:${PORT}`)
 );
